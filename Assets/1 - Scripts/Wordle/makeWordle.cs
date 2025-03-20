@@ -1,23 +1,35 @@
-using System.CodeDom.Compiler;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
-public class makeWordle : MonoBehaviour
-{  
+public class MakeWordle : MonoBehaviour
+{
+    public GameObject letterTilePrefab;
+    public Transform gridParent;
+    public CheckWordle wordChecker;
+
+    public const int rows = 6;
+    public GameObject[,] grid = new GameObject[rows, CheckWordle.columns];
+
     void Start()
     {
-        string Word = "Tests";
-        GenerateWordle(Word);
+        GenerateWordle();
     }
 
-    void GenerateWordle(string Word)
+    void GenerateWordle()
     {
+        float spacing = 3f;
 
-    }
+        for (int row = 0; row < rows; row++)
+        {
+            for (int col = 0; col < CheckWordle.columns; col++)
+            {
+                GameObject tile = Instantiate(letterTilePrefab, gridParent);
+                tile.GetComponent<RectTransform>().anchoredPosition = new Vector2(col * spacing, -row * spacing);
 
-    void Update()
-    {
-        
+                grid[row, col] = tile;
+            }
+        }
     }
 }
