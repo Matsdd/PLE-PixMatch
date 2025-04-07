@@ -7,9 +7,9 @@ public class CheckWordle : MonoBehaviour
 {
     public string targetWord = "WEIRD";
     public const int columns = 5;
-    public GameObject correctTilePrefab; // Green tile
-    public GameObject placeTilePrefab; // Yellow tile
-    public GameObject wrongTilePrefab; // Gray tile
+    public GameObject correctTilePrefab;
+    public GameObject placeTilePrefab;
+    public GameObject wrongTilePrefab;
 
     public void CheckWord(GameObject[,] grid, int currentRow)
     {
@@ -24,8 +24,7 @@ public class CheckWordle : MonoBehaviour
             else
                 targetLetterCounts[c] = 1;
         }
-
-        // First pass: Check for exact matches (Green)
+        
         for (int i = 0; i < columns; i++)
         {
             GameObject letterTile = grid[currentRow, i];
@@ -34,28 +33,27 @@ public class CheckWordle : MonoBehaviour
 
             if (guessedLetter == targetWord[i])
             {
-                ReplaceTile(letterTile, correctTilePrefab); // Correct letter & position
-                targetLetterCounts[guessedLetter]--; // Reduce count
+                ReplaceTile(letterTile, correctTilePrefab);
+                targetLetterCounts[guessedLetter]--;
             }
         }
-
-        // Second pass: Check for misplaced letters (Yellow) or incorrect (Gray)
+        
         for (int i = 0; i < columns; i++)
         {
             GameObject letterTile = grid[currentRow, i];
             TextMeshProUGUI letterText = letterTile.GetComponentInChildren<TextMeshProUGUI>();
             char guessedLetter = letterText.text[0];
 
-            if (letterTile.transform.childCount == 1) // Not already set to correctTilePrefab
+            if (letterTile.transform.childCount == 1)
             {
                 if (targetLetterCounts.ContainsKey(guessedLetter) && targetLetterCounts[guessedLetter] > 0)
                 {
-                    ReplaceTile(letterTile, placeTilePrefab); // Correct letter, wrong position
-                    targetLetterCounts[guessedLetter]--; // Reduce count
+                    ReplaceTile(letterTile, placeTilePrefab);
+                    targetLetterCounts[guessedLetter]--;
                 }
                 else
                 {
-                    ReplaceTile(letterTile, wrongTilePrefab); // Incorrect letter
+                    ReplaceTile(letterTile, wrongTilePrefab);
                 }
             }
         }

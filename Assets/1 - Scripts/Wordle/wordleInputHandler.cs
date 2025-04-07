@@ -16,23 +16,22 @@ public class WordleInputHandler : MonoBehaviour
     {
         HandleInput();
     }
-
-    // ReSharper disable Unity.PerformanceAnalysis
+    
     void HandleInput()
     {
-        if (currentRow >= MakeWordle.rows) return; // Stop input after max attempts
+        if (currentRow >= MakeWordle.rows) return;
 
         foreach (char c in Input.inputString)
         {
             if (char.IsLetter(c) && currentCol < CheckWordle.columns)
             {
-                char upperC = char.ToUpper(c);
+                char upperC = char.ToUpper(c);  
                 wordleGrid.grid[currentRow, currentCol].GetComponentInChildren<TextMeshProUGUI>().text =
                     upperC.ToString();
                 currentInput += upperC;
                 currentCol++;
             }
-            else if (c == '\b' && currentCol > 0) // Backspace
+            else if (c == '\b' && currentCol > 0)
             {
                 currentCol--;
                 wordleGrid.grid[currentRow, currentCol].GetComponentInChildren<TextMeshProUGUI>().text = "";
