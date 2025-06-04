@@ -5,16 +5,18 @@ using UnityEngine.EventSystems;
 public class PicrossTile : MonoBehaviour, IPointerClickHandler
 {
     public Image tileImage;
-    private PicrossBoard board;
+    private BoardManager board;
     private int x, y;
-    private enum State { Empty, Filled, Marked }
+
+    private enum State { Empty, Filled, Marked, Wrong }
     private State currentState = State.Empty;
 
     public Color emptyColor = Color.white;
     public Color filledColor = Color.black;
     public Color markedColor = Color.gray;
+    public Color wrongColor = Color.red;
 
-    public void Init(PicrossBoard board, int x, int y)
+    public void Init(BoardManager board, int x, int y)
     {
         this.board = board;
         this.x = x;
@@ -24,14 +26,29 @@ public class PicrossTile : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        currentState = (State)(((int)currentState + 1) % 3);
+        if (currentState == State.Filled || currentState == State.Wrong)
+            return;
+
+        if (board.currentMode == BoardManager.DrawMode.Fill)
+        {
+            if (board.IsCorrect(x, y, true))
+            {
+                currentState = State.Filled;
+            }
+            else
+            {
+                currentState = State.Wrong;
+                board.RegisterWrongAttempt();
+            }
+        }
+        else if (board.currentMode == BoardManager.DrawMode.Mark)
+        {
+            currentState = State.Marked;
+        }
+
         UpdateVisual();
     }
-    
-    void OnMouseDown()
-    {
-        Debug.Log("OnPointerClick");
-    }
+
 
     void UpdateVisual()
     {
@@ -40,6 +57,7 @@ public class PicrossTile : MonoBehaviour, IPointerClickHandler
             case State.Empty: tileImage.color = emptyColor; break;
             case State.Filled: tileImage.color = filledColor; break;
             case State.Marked: tileImage.color = markedColor; break;
+            case State.Wrong: tileImage.color = wrongColor; break;
         }
     }
 
