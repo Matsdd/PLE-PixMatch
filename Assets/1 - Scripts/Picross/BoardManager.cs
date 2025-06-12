@@ -10,6 +10,12 @@ public class BoardManager : MonoBehaviour
 {
     public int width = 10;
     public int height = 10;
+    public GameObject game;
+    public GameObject cross1;
+    public GameObject cross2;
+    public GameObject cross3;
+    public GameObject loss;
+    public GameObject win;
     public GameObject tilePrefab;
     public Transform gridParent;
     public Transform rowCluesParent;
@@ -110,17 +116,31 @@ public class BoardManager : MonoBehaviour
         }
 
     }
-    
+
     public void RegisterWrongAttempt()
     {
         wrongAttempts++;
-        Debug.Log($"Wrong attempts: {wrongAttempts}");
+        if (wrongAttempts >= 1)
+        {
+            cross1.;
+        }
+        if (wrongAttempts >= 2)
+        {
+            cross2.SetActive(true);
+        }
+
         if (wrongAttempts >= maxWrongAttempts)
         {
-            Debug.Log("You lost!");
+            Lose();
+            cross3.SetActive(true);
         }
     }
 
+    public void Lose()
+    {
+        game.SetActive(false);
+        loss.SetActive(true);
+    }
 
     public bool IsCorrect(int x, int y, bool filled)
     {
