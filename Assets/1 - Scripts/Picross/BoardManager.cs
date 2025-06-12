@@ -11,9 +11,8 @@ public class BoardManager : MonoBehaviour
     public int width = 10;
     public int height = 10;
     public GameObject game;
-    public GameObject cross1;
-    public GameObject cross2;
-    public GameObject cross3;
+    public GameObject crossPrefab;
+    public Transform crossParent;
     public GameObject loss;
     public GameObject win;
     public GameObject tilePrefab;
@@ -38,23 +37,72 @@ public class BoardManager : MonoBehaviour
         SpawnGridWithClues();
     }
 
-    void GeneratePuzzle()
+        void GeneratePuzzle()
     {
         solutionGrid = new bool[width, height];
-        for (int y = 0; y < height; y++)
+        bool valid;
+
+        do
         {
+            valid = true;
+
+            // Generate a random board
+            for (int y = 0; y < height; y++)
+                for (int x = 0; x < width; x++)
+                    solutionGrid[y, x] = UnityEngine.Random.value < 0.4f;
+
+            // Check row runs
+            for (int y = 0; y < height; y++)
+            {
+                if (CountRuns(GetRow(y)) > 4)
+                {
+                    valid = false;
+                    break;
+                }
+            }
+
+            // Check column runs
             for (int x = 0; x < width; x++)
             {
-                solutionGrid[y, x] = Random.value < 0.4f;
+                if (CountRuns(GetColumn(x)) > 4)
+                {
+                    valid = false;
+                    break;
+                }
+            }
+
+        } while (!valid);
+    }
+
+    int CountRuns(bool[] line)
+    {
+        int runs = 0;
+        bool inRun = false;
+
+        foreach (bool cell in line)
+        {
+            if (cell)
+            {
+                if (!inRun)
+                {
+                    runs++;
+                    inRun = true;
+                }
+            }
+            else
+            {
+                inRun = false;
             }
         }
+
+        return runs;
     }
 
     bool[] GetRow(int y)
     {
         bool[] row = new bool[width];
         for (int x = 0; x < width; x++)
-            row[x] = solutionGrid[y, x];
+            row[x] = solutionGrid[y, x]; // Correct: Y is row, X is column
         return row;
     }
 
@@ -62,9 +110,10 @@ public class BoardManager : MonoBehaviour
     {
         bool[] col = new bool[height];
         for (int y = 0; y < height; y++)
-            col[y] = solutionGrid[y, x];
+            col[y] = solutionGrid[y, x]; // Correct: Y is row, X is column
         return col;
     }
+
 
     string GetClueLine(bool[] line)
     {
@@ -72,14 +121,18 @@ public class BoardManager : MonoBehaviour
         int count = 0;
         foreach (bool cell in line)
         {
-            if (cell) count++;
+            if (cell)
+            {
+                count++;
+            }
             else if (count > 0)
             {
                 clue += count + " ";
                 count = 0;
             }
         }
-        if (count > 0) clue += count;
+        if (count > 0)
+            clue += count;
         return clue == "" ? "0" : clue.Trim();
     }
 
@@ -90,7 +143,8 @@ public class BoardManager : MonoBehaviour
         foreach (Transform child in colCluesParent) Destroy(child.gameObject);
 
         tileObjects = new GameObject[width, height];
-        
+
+        // Spawn row clues
         for (int y = 0; y < height; y++)
         {
             string clue = GetClueLine(GetRow(y));
@@ -98,13 +152,15 @@ public class BoardManager : MonoBehaviour
             clueObj.GetComponent<TMP_Text>().text = clue;
         }
 
+        // Spawn column clues
         for (int x = 0; x < width; x++)
         {
             string clue = GetClueLine(GetColumn(x));
             GameObject clueObj = Instantiate(colClueTextPrefab, colCluesParent);
             clueObj.GetComponent<TMP_Text>().text = clue;
         }
-        
+
+        // Spawn tile grid
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)
@@ -114,25 +170,20 @@ public class BoardManager : MonoBehaviour
                 tileObjects[x, y] = tile;
             }
         }
-
     }
 
+    
     public void RegisterWrongAttempt()
     {
         wrongAttempts++;
         if (wrongAttempts >= 1)
         {
-            cross1.;
-        }
-        if (wrongAttempts >= 2)
-        {
-            cross2.SetActive(true);
+            GameObject cross = Instantiate(crossPrefab, crossParent);
         }
 
         if (wrongAttempts >= maxWrongAttempts)
         {
             Lose();
-            cross3.SetActive(true);
         }
     }
 
