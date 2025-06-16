@@ -1685,7 +1685,7 @@ PrefabInstance:
     - target: {fileID: -2049929814205202405, guid: 2ba3fb906936f75499f63609dcf5e45c, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: fd0907d9421c9d743bd17431e82481c3, type: 2}
+      objectReference: {fileID: 2100000, guid: 3c5ae94532ff2e64390e0f6cd15d6b02, type: 2}
     - target: {fileID: 919132149155446097, guid: 2ba3fb906936f75499f63609dcf5e45c, type: 3}
       propertyPath: m_Name
       value: characterMedium

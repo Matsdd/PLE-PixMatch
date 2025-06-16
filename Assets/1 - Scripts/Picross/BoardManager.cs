@@ -23,7 +23,7 @@ public class BoardManager : MonoBehaviour
     public DrawMode currentMode = DrawMode.Fill;
     
     private int wrongAttempts = 0;
-    private const int maxWrongAttempts = 3;
+    private const int maxWrongAttempts = 100;
 
 
     void Start()
@@ -182,10 +182,34 @@ public class BoardManager : MonoBehaviour
         }
     }
 
+    public void CheckForWin()
+    {
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                bool shouldBeFilled = solutionGrid[x, y];
+                bool isFilled = tileObjects[x, y].GetComponent<PicrossTile>().IsFilled();
+
+                // If a tile that should be filled isn't, or a tile that shouldn't be is, we return early.
+                if (isFilled != shouldBeFilled)
+                    return;
+            }
+        }
+        
+        Win();
+    }
+    
     public void Lose()
     {
         game.SetActive(false);
         loss.SetActive(true);
+    }
+    
+    public void Win()
+    {
+        game.SetActive(false);
+        win.SetActive(true);
     }
 
     public bool IsCorrect(int x, int y, bool filled)

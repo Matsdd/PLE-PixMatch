@@ -34,6 +34,7 @@ public class PicrossTile : MonoBehaviour, IPointerClickHandler
             if (_board.IsCorrect(_x, _y, true))
             {
                 _currentState = State.Filled;
+                _board.CheckForWin();
             }
             else
             {
