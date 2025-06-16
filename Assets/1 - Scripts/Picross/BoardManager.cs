@@ -1,10 +1,5 @@
-using System;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.UI;
-using Random = UnityEngine.Random;
-using TMPro; // Make sure this is included
+using TMPro;
 
 public class BoardManager : MonoBehaviour
 {

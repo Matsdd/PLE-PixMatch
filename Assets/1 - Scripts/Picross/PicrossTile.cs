@@ -5,11 +5,11 @@ using UnityEngine.EventSystems;
 public class PicrossTile : MonoBehaviour, IPointerClickHandler
 {
     public Image tileImage;
-    private BoardManager board;
-    private int x, y;
+    private BoardManager _board;
+    private int _x, _y;
 
     private enum State { Empty, Filled, Marked, Wrong }
-    private State currentState = State.Empty;
+    private State _currentState = State.Empty;
 
     public Color emptyColor = Color.white;
     public Color filledColor = Color.black;
@@ -18,32 +18,32 @@ public class PicrossTile : MonoBehaviour, IPointerClickHandler
 
     public void Init(BoardManager board, int x, int y)
     {
-        this.board = board;
-        this.x = x;
-        this.y = y;
+        this._board = board;
+        this._x = x;
+        this._y = y;
         UpdateVisual();
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (currentState == State.Filled || currentState == State.Wrong)
+        if (_currentState == State.Filled || _currentState == State.Wrong)
             return;
 
-        if (board.currentMode == BoardManager.DrawMode.Fill)
+        if (_board.currentMode == BoardManager.DrawMode.Fill)
         {
-            if (board.IsCorrect(x, y, true))
+            if (_board.IsCorrect(_x, _y, true))
             {
-                currentState = State.Filled;
+                _currentState = State.Filled;
             }
             else
             {
-                currentState = State.Wrong;
-                board.RegisterWrongAttempt();
+                _currentState = State.Wrong;
+                _board.RegisterWrongAttempt();
             }
         }
-        else if (board.currentMode == BoardManager.DrawMode.Mark)
+        else if (_board.currentMode == BoardManager.DrawMode.Mark)
         {
-            currentState = State.Marked;
+            _currentState = State.Marked;
         }
 
         UpdateVisual();
@@ -52,7 +52,7 @@ public class PicrossTile : MonoBehaviour, IPointerClickHandler
 
     void UpdateVisual()
     {
-        switch (currentState)
+        switch (_currentState)
         {
             case State.Empty: tileImage.color = emptyColor; break;
             case State.Filled: tileImage.color = filledColor; break;
@@ -61,5 +61,5 @@ public class PicrossTile : MonoBehaviour, IPointerClickHandler
         }
     }
 
-    public bool IsFilled() => currentState == State.Filled;
+    public bool IsFilled() => _currentState == State.Filled;
 }
