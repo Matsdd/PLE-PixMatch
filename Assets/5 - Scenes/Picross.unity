@@ -1222,6 +1222,16 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2ba3fb906936f75499f63609dcf5e45c, type: 3}
+--- !u!137 &662927446 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -2049929814205202405, guid: 2ba3fb906936f75499f63609dcf5e45c, type: 3}
+  m_PrefabInstance: {fileID: 662927445}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &662927447 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 2ba3fb906936f75499f63609dcf5e45c, type: 3}
+  m_PrefabInstance: {fileID: 662927445}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &688046058
 GameObject:
   m_ObjectHideFlags: 0
@@ -2314,6 +2324,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 97dad4fe06e2def479a2658cf34de676, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  OpponentCharacter: {fileID: 1457234794}
+  PlayerCharacter: {fileID: 662927447}
+  ModeText: {fileID: 1902714513}
+  playerCharacter: {fileID: 662927446}
+  opponentCharacter: {fileID: 1457234793}
   width: 10
   height: 10
   game: {fileID: 1739290752}
@@ -2648,6 +2663,16 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2ba3fb906936f75499f63609dcf5e45c, type: 3}
+--- !u!137 &1457234793 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -2049929814205202405, guid: 2ba3fb906936f75499f63609dcf5e45c, type: 3}
+  m_PrefabInstance: {fileID: 1457234792}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1457234794 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 2ba3fb906936f75499f63609dcf5e45c, type: 3}
+  m_PrefabInstance: {fileID: 1457234792}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1469617854
 GameObject:
   m_ObjectHideFlags: 0

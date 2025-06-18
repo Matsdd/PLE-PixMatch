@@ -3,6 +3,14 @@ using TMPro;
 
 public class BoardManager : MonoBehaviour
 {
+    public GameObject OpponentCharacter;
+    public GameObject PlayerCharacter;
+    public TMP_Text ModeText;
+
+    public Renderer playerCharacter;
+    public Renderer opponentCharacter;
+    public Material[] playerSkins;
+    
     public int width = 10;
     public int height = 10;
     public GameObject game;
@@ -23,15 +31,58 @@ public class BoardManager : MonoBehaviour
     public DrawMode currentMode = DrawMode.Fill;
     
     private int wrongAttempts = 0;
-    private const int maxWrongAttempts = 100;
+    private const int maxWrongAttempts = 3;
 
 
     void Start()
     {
         GeneratePuzzle();
         SpawnGridWithClues();
+        SetupModeUI();
+        ApplySavedSkins();
     }
 
+    void SetupModeUI()
+    {
+        if (ModeSelector.IsQuickplay)
+        {
+            OpponentCharacter.SetActive(false);
+            PlayerCharacter.SetActive(false);
+            int streak = PlayerPrefs.GetInt("CurrentStreak", 0);
+            ModeText.text = $"Streak: {streak}";
+        }
+        else
+        {
+            OpponentCharacter.SetActive(true);
+            PlayerCharacter.SetActive(true);
+
+            string myName = PlayerPrefs.GetString("PlayerName", "You");
+            string opponentName = "Opponent";
+            ModeText.text = $"{myName} vs {opponentName}";
+        }
+    }
+
+    void ApplySavedSkins()
+    {
+        if (playerSkins == null || playerSkins.Length == 0)
+        {
+            Debug.LogWarning("No player skins assigned!");
+            return;
+        }
+
+        int savedSkinIndex = PlayerPrefs.GetInt("currentSkinIndex", 0);
+        savedSkinIndex = Mathf.Clamp(savedSkinIndex, 0, playerSkins.Length - 1);
+
+        if (playerCharacter != null)
+        {
+            playerCharacter.material = playerSkins[savedSkinIndex];
+        }
+        if (opponentCharacter != null)
+        {
+            opponentCharacter.material = playerSkins[0];
+        }
+    }
+    
         void GeneratePuzzle()
     {
         solutionGrid = new bool[width, height];
@@ -202,12 +253,20 @@ public class BoardManager : MonoBehaviour
     
     public void Lose()
     {
+        PlayerPrefs.SetInt("CurrentStreak", 0);
+        PlayerPrefs.Save();
+        
         game.SetActive(false);
         loss.SetActive(true);
     }
     
     public void Win()
     {
+        int currentStreak = PlayerPrefs.GetInt("CurrentStreak", 0);
+        currentStreak += 1;
+        PlayerPrefs.SetInt("CurrentStreak", currentStreak);
+        PlayerPrefs.Save();
+
         game.SetActive(false);
         win.SetActive(true);
     }
