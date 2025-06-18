@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using TMPro;
 
@@ -7,8 +8,8 @@ public class BoardManager : MonoBehaviour
     public GameObject PlayerCharacter;
     public TMP_Text ModeText;
 
-    public Renderer playerCharacter;
-    public Renderer opponentCharacter;
+    public SkinnedMeshRenderer playerCharacter;
+    public SkinnedMeshRenderer opponentCharacter;
     public Material[] playerSkins;
     
     public int width = 10;
@@ -58,16 +59,7 @@ public class BoardManager : MonoBehaviour
 
             string myName = PlayerPrefs.GetString("PlayerName", "You");
             string opponentName = "Waiting...";
-
-            foreach (var player in FindObjectsOfType<NetworkPlayer>())
-            {
-                if (!player.Object.HasInputAuthority)
-                {
-                    opponentName = player.PlayerName.ToString();
-                    break;
-                }
-            }
-
+            
             ModeText.text = $"{myName} vs {opponentName}";
         }
     }
@@ -75,24 +67,24 @@ public class BoardManager : MonoBehaviour
 
     void ApplySavedSkins()
     {
-        if (playerSkins == null || playerSkins.Length == 0)
-        {
-            Debug.LogWarning("No player skins assigned!");
-            return;
-        }
+        int playerSkinIndex = PlayerPrefs.GetInt("PlayerSkin", 0);
+        ApplyMaterial(playerCharacter, playerSkinIndex);
 
-        int savedSkinIndex = PlayerPrefs.GetInt("currentSkinIndex", 0);
-        savedSkinIndex = Mathf.Clamp(savedSkinIndex, 0, playerSkins.Length - 1);
+        // For now, opponent uses skin 0 (or set dynamically later)
+        int opponentSkinIndex = 0;
+        ApplyMaterial(opponentCharacter, opponentSkinIndex);
+    }
 
-        if (playerCharacter != null)
+    void ApplyMaterial(SkinnedMeshRenderer renderer, int index)
+    {
+        if (renderer != null && playerSkins.Length > 0)
         {
-            playerCharacter.material = playerSkins[savedSkinIndex];
-        }
-        if (opponentCharacter != null)
-        {
-            opponentCharacter.material = playerSkins[0];
+            index = Mathf.Clamp(index, 0, playerSkins.Length - 1);
+            renderer.material = playerSkins[index];
         }
     }
+
+
     
         void GeneratePuzzle()
     {

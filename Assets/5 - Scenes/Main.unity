@@ -1725,8 +1725,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b400f3ad04aca340985f51fd1757901, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerSkinnedMeshRenderer: {fileID: 689104003}
-  playerSkins:
+  playerCharacterRenderer: {fileID: 689104003}
+  skinMaterials:
   - {fileID: 2100000, guid: fd0907d9421c9d743bd17431e82481c3, type: 2}
   - {fileID: 2100000, guid: 324bf6d379cb5e446984e489eca74b97, type: 2}
   - {fileID: 2100000, guid: 3c5ae94532ff2e64390e0f6cd15d6b02, type: 2}

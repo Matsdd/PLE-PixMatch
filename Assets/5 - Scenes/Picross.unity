@@ -1250,12 +1250,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 54c7aec8a2c339a4f83678228bdeddff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _SkinIndex: 0
   _PlayerName:
     _length: 0
     _data:
       Data: 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-  _SkinIndex: 0
-  playerRenderer: {fileID: 662927446}
+  characterRenderer: {fileID: 0}
   skinMaterials: []
 --- !u!114 &662927451
 MonoBehaviour:
@@ -2373,7 +2373,15 @@ MonoBehaviour:
   ModeText: {fileID: 1902714513}
   playerCharacter: {fileID: 662927446}
   opponentCharacter: {fileID: 1457234793}
-  playerSkins: []
+  playerSkins:
+  - {fileID: 2100000, guid: fd0907d9421c9d743bd17431e82481c3, type: 2}
+  - {fileID: 2100000, guid: 324bf6d379cb5e446984e489eca74b97, type: 2}
+  - {fileID: 2100000, guid: 3c5ae94532ff2e64390e0f6cd15d6b02, type: 2}
+  - {fileID: 2100000, guid: c7d95e42b538b4a4187655d8507ef2d3, type: 2}
+  - {fileID: 2100000, guid: f701243c33a62f24dacead901bb76e85, type: 2}
+  - {fileID: 2100000, guid: f9acbb00b794a6942abf43f25dda7df1, type: 2}
+  - {fileID: 2100000, guid: 54cad71b669b0254a8c6199b44be50a4, type: 2}
+  - {fileID: 2100000, guid: d6b4ad37af6413641ae47b9390360919, type: 2}
   width: 10
   height: 10
   game: {fileID: 1739290752}
@@ -2736,12 +2744,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 54c7aec8a2c339a4f83678228bdeddff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _SkinIndex: 0
   _PlayerName:
     _length: 0
     _data:
       Data: 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-  _SkinIndex: 0
-  playerRenderer: {fileID: 1457234793}
+  characterRenderer: {fileID: 0}
   skinMaterials: []
 --- !u!114 &1457234799
 MonoBehaviour:
@@ -3026,9 +3034,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62260f2035078154ca26420d7cca34be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerPrefab:
-    RawGuidValue: 00000000000000000000000000000000
-  skinMaterials: []
+  opponentNameText: {fileID: 0}
+  opponentCharacter: {fileID: 0}
+  boardManager: {fileID: 0}
 --- !u!4 &1678770338
 Transform:
   m_ObjectHideFlags: 0

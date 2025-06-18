@@ -1,45 +1,47 @@
 using Fusion;
 using UnityEngine;
 
-public class NetworkPlayer : NetworkBehaviour
+public class NetworkPlayerData : NetworkBehaviour
 {
-    [Networked] public NetworkString<_16> PlayerName { get; set; }
-    [Networked] public int SkinIndex { get; set; }
+    [Networked]
+    public int SkinIndex { get; set; }
 
-    public Renderer playerRenderer;
+    [Networked]
+    public NetworkString<_16> PlayerName { get; set; }
+
+    public Renderer characterRenderer;
     public Material[] skinMaterials;
 
     public override void Spawned()
     {
         if (Object.HasInputAuthority)
         {
-            // This is the local player
-            string savedName = PlayerPrefs.GetString("PlayerName", "Player");
-            int savedSkin = PlayerPrefs.GetInt("currentSkinIndex", 0);
-
-            RPC_SetPlayerInfo(savedName, savedSkin);
+            // This is the local player, set skin and name from PlayerPrefs
+            SkinIndex = PlayerPrefs.GetInt("currentSkinIndex", 0);
+            PlayerName = PlayerPrefs.GetString("PlayerName", "Player");
         }
-
-        ApplySkin(SkinIndex);
+        else
+        {
+            // This is the remote player, apply their synced values
+            ApplySkin(SkinIndex);
+            Debug.Log($"Opponent joined: {PlayerName.ToString()} with skin {SkinIndex}");
+        }
     }
 
-    public override void Render()
+    public override void FixedUpdateNetwork()
     {
-        ApplySkin(SkinIndex);
+        if (!Object.HasInputAuthority)
+        {
+            ApplySkin(SkinIndex);
+        }
     }
 
     void ApplySkin(int index)
     {
-        if (playerRenderer != null && skinMaterials.Length > 0 && index < skinMaterials.Length)
+        if (characterRenderer != null && skinMaterials.Length > 0)
         {
-            playerRenderer.material = skinMaterials[index];
+            index = Mathf.Clamp(index, 0, skinMaterials.Length - 1);
+            characterRenderer.material = skinMaterials[index];
         }
-    }
-
-    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
-    void RPC_SetPlayerInfo(string name, int skin)
-    {
-        PlayerName = name;
-        SkinIndex = skin;
     }
 }

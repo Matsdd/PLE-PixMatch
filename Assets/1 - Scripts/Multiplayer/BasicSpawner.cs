@@ -4,27 +4,27 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
 {
-    public NetworkPrefabRef playerPrefab;
-    public Material[] skinMaterials;
+    public TMP_Text opponentNameText;
+    public Renderer opponentCharacter;
+    public BoardManager boardManager;
+
     
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
     {
-        if (player == runner.LocalPlayer)
+        var players = FindObjectsOfType<NetworkPlayerData>();
+        foreach (var p in players)
         {
-            Vector3 spawnPos = new Vector3(UnityEngine.Random.Range(-3f, 3f), 0, 0);
-
-            NetworkObject playerObj = runner.Spawn(playerPrefab, spawnPos, Quaternion.identity, player);
-
-            var netPlayer = playerObj.GetComponent<NetworkPlayer>();
-
-            netPlayer.skinMaterials = skinMaterials;
-
-            netPlayer.PlayerName = PlayerPrefs.GetString("PlayerName", "You");
-            netPlayer.SkinIndex = PlayerPrefs.GetInt("currentSkinIndex", 0);
+            if (!p.Object.HasInputAuthority)
+            {
+                opponentNameText.text = p.PlayerName.ToString();
+                opponentCharacter.material = p.skinMaterials[p.SkinIndex];
+            }
         }
+
     }
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player) { }
     public void OnInput(NetworkRunner runner, NetworkInput input) { }
