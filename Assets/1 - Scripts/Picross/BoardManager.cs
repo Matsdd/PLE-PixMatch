@@ -57,10 +57,21 @@ public class BoardManager : MonoBehaviour
             PlayerCharacter.SetActive(true);
 
             string myName = PlayerPrefs.GetString("PlayerName", "You");
-            string opponentName = "Opponent";
+            string opponentName = "Waiting...";
+
+            foreach (var player in FindObjectsOfType<NetworkPlayer>())
+            {
+                if (!player.Object.HasInputAuthority)
+                {
+                    opponentName = player.PlayerName.ToString();
+                    break;
+                }
+            }
+
             ModeText.text = $"{myName} vs {opponentName}";
         }
     }
+
 
     void ApplySavedSkins()
     {

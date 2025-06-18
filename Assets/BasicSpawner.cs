@@ -7,7 +7,25 @@ using UnityEngine.SceneManagement;
 
 public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
 {
-    public void OnPlayerJoined(NetworkRunner runner, PlayerRef player) { }
+    public NetworkPrefabRef playerPrefab;
+    public Material[] skinMaterials;
+    
+    public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
+    {
+        if (player == runner.LocalPlayer)
+        {
+            Vector3 spawnPos = new Vector3(UnityEngine.Random.Range(-3f, 3f), 0, 0);
+
+            NetworkObject playerObj = runner.Spawn(playerPrefab, spawnPos, Quaternion.identity, player);
+
+            var netPlayer = playerObj.GetComponent<NetworkPlayer>();
+
+            netPlayer.skinMaterials = skinMaterials;
+
+            netPlayer.PlayerName = PlayerPrefs.GetString("PlayerName", "You");
+            netPlayer.SkinIndex = PlayerPrefs.GetInt("currentSkinIndex", 0);
+        }
+    }
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player) { }
     public void OnInput(NetworkRunner runner, NetworkInput input) { }
     public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input) { }
