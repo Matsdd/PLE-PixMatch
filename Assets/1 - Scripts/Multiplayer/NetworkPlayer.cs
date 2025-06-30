@@ -25,15 +25,20 @@ public class NetworkPlayer : NetworkBehaviour
             string name = PlayerPrefs.GetString("PlayerName", "Player");
             int skin = PlayerPrefs.GetInt("PlayerSkin", 0);
 
+            // Directly set the networked fields — they replicate to everyone!
             RPC_SendPlayerInfoToHost(name, skin);
         }
 
         if (Object.HasStateAuthority)
         {
-            PlayerName = PlayerPrefs.GetString("PlayerName", "Host");
-            SkinIndex = PlayerPrefs.GetInt("PlayerSkin", 0);
+            string hostName = PlayerPrefs.GetString("PlayerName", "Host");
+            int hostSkin = PlayerPrefs.GetInt("PlayerSkin", 0);
+
+            PlayerName = hostName;
+            SkinIndex = hostSkin;
         }
     }
+
 
 
     [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
