@@ -13,6 +13,15 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
 
     private NetworkRunner _runner;
 
+    private void Update()
+    {
+        if (_spawnedPlayers.Count >= 2)
+        {
+            TrySetupPlayers(_runner);
+        }
+    }
+
+    
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
     {
         if (runner.IsServer)
@@ -38,28 +47,36 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
             PlayerRef playerRef = kvp.Key;
             NetworkPlayer netPlayer = kvp.Value.GetComponent<NetworkPlayer>();
 
+            // 🚩 If names aren't set yet, wait for next call
+            if (string.IsNullOrEmpty(netPlayer.PlayerName.ToString()))
+            {
+                Debug.Log($"Player {playerRef} has no name yet, waiting...");
+                return;
+            }
+
             if (playerRef == runner.LocalPlayer)
             {
                 localPlayer = netPlayer;
-                Debug.Log("I am: " + netPlayer.PlayerName);
+                Debug.Log("I am: " + netPlayer.PlayerName.ToString());
             }
             else
             {
                 opponentPlayer = netPlayer;
-                Debug.Log("Opponent is: " + netPlayer.PlayerName);
+                Debug.Log("Opponent is: " + netPlayer.PlayerName.ToString());
             }
         }
 
         if (localPlayer != null && opponentPlayer != null)
         {
-            // Pass the opponent data to your BoardManager
             BoardManager board = FindObjectOfType<BoardManager>();
             if (board != null)
             {
+                Debug.Log("Sending opponent data to BoardManager: " + opponentPlayer.PlayerName.ToString());
                 board.SetOpponent(opponentPlayer.PlayerName.ToString(), opponentPlayer.SkinIndex);
             }
         }
     }
+
 
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player) { }
     public void OnInput(NetworkRunner runner, NetworkInput input) { }

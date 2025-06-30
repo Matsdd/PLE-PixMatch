@@ -3,15 +3,18 @@ using UnityEngine;
 
 public class NetworkPlayer : NetworkBehaviour
 {
-    [Networked] public string PlayerName { get; set; }
+    [Networked] public NetworkString<_32> PlayerName { get; set; }
     [Networked] public int SkinIndex { get; set; }
 
     public override void Spawned()
     {
-        if (Object.HasInputAuthority)
+        if (HasInputAuthority)
         {
-            PlayerName = PlayerPrefs.GetString("PlayerName", "Player");
+            string localName = PlayerPrefs.GetString("PlayerName", "Player");
+            PlayerName = localName; // ✅ Implicit conversion works
             SkinIndex = PlayerPrefs.GetInt("SkinIndex", 0);
+
+            Debug.Log($"Spawned NetworkPlayer with name: {PlayerName} skin: {SkinIndex}");
         }
     }
 }
