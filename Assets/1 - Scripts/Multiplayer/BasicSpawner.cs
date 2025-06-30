@@ -41,6 +41,7 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
             }
             else
             {
+
                 Debug.Log("Opponent is: " + netPlayer.PlayerName);
                 FindObjectOfType<BoardManager>().ReceiveOpponentData(netPlayer.PlayerName.ToString(), netPlayer.SkinIndex);
             }
