@@ -4,12 +4,14 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using TMPro;
 
 public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
 {
     public NetworkObject playerPrefab;
+
     private Dictionary<PlayerRef, NetworkObject> _spawnedPlayers = new();
+
+    private NetworkRunner _runner;
 
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
     {
@@ -17,8 +19,6 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
         {
             Vector3 spawnPos = new Vector3(player.RawEncoded % 5, 0, 0);
             NetworkObject playerObj = runner.Spawn(playerPrefab, spawnPos, Quaternion.identity, player);
-
-            playerObj.GetComponent<NetworkPlayer>().spawner = this;
 
             _spawnedPlayers[player] = playerObj;
 
@@ -30,6 +30,9 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
     {
         if (_spawnedPlayers.Count < 2) return;
 
+        NetworkPlayer localPlayer = null;
+        NetworkPlayer opponentPlayer = null;
+
         foreach (var kvp in _spawnedPlayers)
         {
             PlayerRef playerRef = kvp.Key;
@@ -37,13 +40,23 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
 
             if (playerRef == runner.LocalPlayer)
             {
+                localPlayer = netPlayer;
                 Debug.Log("I am: " + netPlayer.PlayerName);
             }
             else
             {
-
+                opponentPlayer = netPlayer;
                 Debug.Log("Opponent is: " + netPlayer.PlayerName);
-                FindObjectOfType<BoardManager>().ReceiveOpponentData(netPlayer.PlayerName.ToString(), netPlayer.SkinIndex);
+            }
+        }
+
+        if (localPlayer != null && opponentPlayer != null)
+        {
+            // Pass the opponent data to your BoardManager
+            BoardManager board = FindObjectOfType<BoardManager>();
+            if (board != null)
+            {
+                board.SetOpponent(opponentPlayer.PlayerName.ToString(), opponentPlayer.SkinIndex);
             }
         }
     }
@@ -52,10 +65,7 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
     public void OnInput(NetworkRunner runner, NetworkInput input) { }
     public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input) { }
     public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason) { }
-    public void OnConnectedToServer(NetworkRunner runner)
-    {
-        Debug.Log("Connected to server");
-    }
+    public void OnConnectedToServer(NetworkRunner runner) => Debug.Log("Connected to server");
     public void OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason) { }
     public void OnConnectRequest(NetworkRunner runner, NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token) { }
     public void OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason) { }
@@ -65,28 +75,18 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
     public void OnHostMigration(NetworkRunner runner, HostMigrationToken hostMigrationToken) { }
     public void OnSceneLoadDone(NetworkRunner runner) { }
     public void OnSceneLoadStart(NetworkRunner runner) { }
-    public void OnObjectExitAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player){ }
-    public void OnObjectEnterAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player){ }
-    public void OnReliableDataReceived(NetworkRunner runner, PlayerRef player, ReliableKey key, ArraySegment<byte> data){ }
-    public void OnReliableDataProgress(NetworkRunner runner, PlayerRef player, ReliableKey key, float progress){ }
+    public void OnObjectExitAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player) { }
+    public void OnObjectEnterAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player) { }
+    public void OnReliableDataReceived(NetworkRunner runner, PlayerRef player, ReliableKey key, ArraySegment<byte> data) { }
+    public void OnReliableDataProgress(NetworkRunner runner, PlayerRef player, ReliableKey key, float progress) { }
 
-
-    private NetworkRunner _runner;
-
-    async void StartGame(GameMode mode)
+    private async void StartGame(GameMode mode)
     {
-        // Create the Fusion runner and let it know that we will be providing user input
         _runner = gameObject.AddComponent<NetworkRunner>();
         _runner.ProvideInput = true;
 
-        // Create the NetworkSceneInfo from the current scene
         var scene = SceneRef.FromIndex(SceneManager.GetActiveScene().buildIndex);
-        var sceneInfo = new NetworkSceneInfo();
-        if (scene.IsValid) {
-            sceneInfo.AddSceneRef(scene, LoadSceneMode.Additive);
-        }
 
-        // Start or join (depends on gamemode) a session with a specific name
         await _runner.StartGame(new StartGameArgs()
         {
             GameMode = mode,
@@ -100,11 +100,11 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
     {
         if (_runner == null)
         {
-            if (GUI.Button(new Rect(0,0,200,40), "Host"))
+            if (GUI.Button(new Rect(0, 0, 200, 40), "Host"))
             {
                 StartGame(GameMode.Host);
             }
-            if (GUI.Button(new Rect(0,40,200,40), "Join"))
+            if (GUI.Button(new Rect(0, 40, 200, 40), "Join"))
             {
                 StartGame(GameMode.Client);
             }

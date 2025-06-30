@@ -1,21 +1,22 @@
 using System;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 using TMPro;
 
 public class BoardManager : MonoBehaviour
 {
+    [Header("Characters")]
     public GameObject OpponentCharacter;
     public GameObject PlayerCharacter;
+
+    [Header("Text")]
     public TMP_Text ModeText;
 
-    private string _opponentName = "Waiting...";
-    private int _opponentSkinIndex = 0;
-    
-    public SkinnedMeshRenderer playerCharacter;
-    public SkinnedMeshRenderer opponentCharacter;
+    [Header("Characters Mesh + Skins")]
+    public SkinnedMeshRenderer playerCharacter;  // local player mesh
+    public SkinnedMeshRenderer opponentCharacter; // opponent mesh
     public Material[] playerSkins;
-    
+
+    [Header("Grid Settings")]
     public int width = 10;
     public int height = 10;
     public GameObject game;
@@ -31,13 +32,18 @@ public class BoardManager : MonoBehaviour
     public GameObject colClueTextPrefab;
     public bool[,] solutionGrid;
     public GameObject[,] tileObjects;
-    
-    public enum DrawMode { Fill, Mark, Wrong}
+
+    public enum DrawMode { Fill, Mark, Wrong }
     public DrawMode currentMode = DrawMode.Fill;
-    
+
     private int wrongAttempts = 0;
     private const int maxWrongAttempts = 3;
 
+    private string _localName;
+    private int _localSkinIndex;
+
+    private string _opponentName = "Waiting...";
+    private int _opponentSkinIndex = 0;
 
     void Start()
     {
@@ -53,6 +59,7 @@ public class BoardManager : MonoBehaviour
         {
             OpponentCharacter.SetActive(false);
             PlayerCharacter.SetActive(false);
+
             int streak = PlayerPrefs.GetInt("CurrentStreak", 0);
             ModeText.text = $"Streak: {streak}";
         }
@@ -62,17 +69,17 @@ public class BoardManager : MonoBehaviour
             PlayerCharacter.SetActive(true);
 
             string myName = PlayerPrefs.GetString("PlayerName", "You");
-            string opponentName = "Waiting...";
-            
-            ModeText.text = $"{myName} vs {opponentName}";
+            _localName = myName;
+
+            ModeText.text = $"{_localName} vs {_opponentName}";
         }
     }
-
 
     void ApplySavedSkins()
     {
         int playerSkinIndex = PlayerPrefs.GetInt("PlayerSkin", 0);
-        ApplyMaterial(playerCharacter, playerSkinIndex);
+        _localSkinIndex = playerSkinIndex;
+        ApplyMaterial(playerCharacter, _localSkinIndex);
     }
 
     void ApplyMaterial(SkinnedMeshRenderer renderer, int index)
@@ -83,23 +90,41 @@ public class BoardManager : MonoBehaviour
             renderer.material = playerSkins[index];
         }
     }
-    
-    public void ReceiveOpponentData(string name, int skin)
+
+    public void SetLocalPlayerInfo(string name, int skinIndex)
+    {
+        _localName = name;
+        _localSkinIndex = skinIndex;
+
+        Debug.Log($"Set local player: {_localName} skin: {_localSkinIndex}");
+        ApplyMaterial(playerCharacter, _localSkinIndex);
+        UpdateModeText();
+    }
+
+    public void SetRemotePlayerInfo(string name, int skinIndex)
     {
         _opponentName = name;
-        _opponentSkinIndex = skin;
+        _opponentSkinIndex = skinIndex;
 
-        Debug.Log($"Received opponent data: {_opponentName}, skin: {_opponentSkinIndex}");
-        OpponentJoined();
+        Debug.Log($"Set opponent player: {_opponentName} skin: {_opponentSkinIndex}");
+        ApplyMaterial(opponentCharacter, _opponentSkinIndex);
+        UpdateModeText();
+    }
+
+    private void UpdateModeText()
+    {
+        if (!ModeSelector.IsQuickplay && !string.IsNullOrEmpty(_localName) && !string.IsNullOrEmpty(_opponentName))
+        {
+            ModeText.text = $"{_localName} vs {_opponentName}";
+        }
     }
     
-    void OpponentJoined()
+    public void SetOpponent(string opponentName, int skinIndex)
     {
-        ApplyMaterial(opponentCharacter, _opponentSkinIndex);
-
-        string myName = PlayerPrefs.GetString("PlayerName", "You");
-        ModeText.text = $"{myName} vs {_opponentName}";
+        Debug.Log($"Opponent set: {opponentName}, Skin: {skinIndex}");
+        // Do something with this info, like update UI
     }
+
     
         void GeneratePuzzle()
     {
