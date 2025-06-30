@@ -8,29 +8,30 @@ using TMPro;
 
 public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
 {
-    public TMP_Text opponentNameText;
-    public Renderer opponentCharacter;
-    public BoardManager boardManager;
+    public NetworkObject playerPrefab;
+    private Dictionary<PlayerRef, NetworkObject> _spawnedPlayers = new();
 
-    
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
     {
-        var players = FindObjectsOfType<NetworkPlayerData>();
-        foreach (var p in players)
+        if (runner.IsServer)
         {
-            if (!p.Object.HasInputAuthority)
-            {
-                opponentNameText.text = p.PlayerName.ToString();
-                opponentCharacter.material = p.skinMaterials[p.SkinIndex];
-            }
-        }
+            Vector3 spawnPos = new Vector3(player.RawEncoded % 5, 0, 0);
+            NetworkObject playerObj = runner.Spawn(playerPrefab, spawnPos, Quaternion.identity, player);
 
+            playerObj.GetComponent<NetworkPlayer>().spawner = this;
+
+            _spawnedPlayers[player] = playerObj;
+        }
     }
+
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player) { }
     public void OnInput(NetworkRunner runner, NetworkInput input) { }
     public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input) { }
     public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason) { }
-    public void OnConnectedToServer(NetworkRunner runner) { }
+    public void OnConnectedToServer(NetworkRunner runner)
+    {
+        Debug.Log("Connected to server");
+    }
     public void OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason) { }
     public void OnConnectRequest(NetworkRunner runner, NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token) { }
     public void OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason) { }
@@ -44,8 +45,8 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
     public void OnObjectEnterAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player){ }
     public void OnReliableDataReceived(NetworkRunner runner, PlayerRef player, ReliableKey key, ArraySegment<byte> data){ }
     public void OnReliableDataProgress(NetworkRunner runner, PlayerRef player, ReliableKey key, float progress){ }
-    
-    
+
+
     private NetworkRunner _runner;
 
     async void StartGame(GameMode mode)
@@ -70,7 +71,7 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
             SceneManager = gameObject.AddComponent<NetworkSceneManagerDefault>()
         });
     }
-    
+
     private void OnGUI()
     {
         if (_runner == null)
@@ -86,4 +87,3 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
         }
     }
 }
-

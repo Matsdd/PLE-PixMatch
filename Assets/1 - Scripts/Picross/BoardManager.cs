@@ -1,3 +1,4 @@
+using System;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 using TMPro;
@@ -8,6 +9,9 @@ public class BoardManager : MonoBehaviour
     public GameObject PlayerCharacter;
     public TMP_Text ModeText;
 
+    private string _opponentName = "Waiting...";
+    private int _opponentSkinIndex = 0;
+    
     public SkinnedMeshRenderer playerCharacter;
     public SkinnedMeshRenderer opponentCharacter;
     public Material[] playerSkins;
@@ -69,10 +73,6 @@ public class BoardManager : MonoBehaviour
     {
         int playerSkinIndex = PlayerPrefs.GetInt("PlayerSkin", 0);
         ApplyMaterial(playerCharacter, playerSkinIndex);
-
-        // For now, opponent uses skin 0 (or set dynamically later)
-        int opponentSkinIndex = 0;
-        ApplyMaterial(opponentCharacter, opponentSkinIndex);
     }
 
     void ApplyMaterial(SkinnedMeshRenderer renderer, int index)
@@ -83,8 +83,23 @@ public class BoardManager : MonoBehaviour
             renderer.material = playerSkins[index];
         }
     }
+    
+    public void ReceiveOpponentData(string name, int skin)
+    {
+        _opponentName = name;
+        _opponentSkinIndex = skin;
 
+        Debug.Log($"Received opponent data: {_opponentName}, skin: {_opponentSkinIndex}");
+        OpponentJoined();
+    }
+    
+    void OpponentJoined()
+    {
+        ApplyMaterial(opponentCharacter, _opponentSkinIndex);
 
+        string myName = PlayerPrefs.GetString("PlayerName", "You");
+        ModeText.text = $"{myName} vs {_opponentName}";
+    }
     
         void GeneratePuzzle()
     {

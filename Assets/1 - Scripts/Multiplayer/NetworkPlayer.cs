@@ -1,47 +1,53 @@
 using Fusion;
 using UnityEngine;
 
-public class NetworkPlayerData : NetworkBehaviour
+public class NetworkPlayer : NetworkBehaviour
 {
+    [Networked]
+    public NetworkString<_32> PlayerName { get; set; }
+
     [Networked]
     public int SkinIndex { get; set; }
 
-    [Networked]
-    public NetworkString<_16> PlayerName { get; set; }
+    public BoardManager boardManager;
+    public BasicSpawner spawner;
 
-    public Renderer characterRenderer;
-    public Material[] skinMaterials;
+    public string _receivedHostName;
+    public int _receivedHostSkin;
+
+    public string ReceivedHostName => _receivedHostName;
+    public int ReceivedHostSkin => _receivedHostSkin;
 
     public override void Spawned()
     {
         if (Object.HasInputAuthority)
         {
-            // This is the local player, set skin and name from PlayerPrefs
-            SkinIndex = PlayerPrefs.GetInt("currentSkinIndex", 0);
-            PlayerName = PlayerPrefs.GetString("PlayerName", "Player");
-        }
-        else
-        {
-            // This is the remote player, apply their synced values
-            ApplySkin(SkinIndex);
-            Debug.Log($"Opponent joined: {PlayerName.ToString()} with skin {SkinIndex}");
+            string name = PlayerPrefs.GetString("PlayerName", "Player");
+            int skin = PlayerPrefs.GetInt("PlayerSkin", 0);
+
+            RPC_SendPlayerInfoToHost(name, skin);
         }
     }
 
-    public override void FixedUpdateNetwork()
+    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
+    private void RPC_SendPlayerInfoToHost(string playerName, int skinIndex)
     {
-        if (!Object.HasInputAuthority)
-        {
-            ApplySkin(SkinIndex);
-        }
+        PlayerName = playerName;
+        SkinIndex = skinIndex;
+
+        string hostName = PlayerPrefs.GetString("PlayerName", "Host");
+        int hostSkin = PlayerPrefs.GetInt("PlayerSkin", 0);
+        RPC_SendHostInfoToClient(hostName, hostSkin);
     }
 
-    void ApplySkin(int index)
+    [Rpc(RpcSources.StateAuthority, RpcTargets.InputAuthority)]
+    private void RPC_SendHostInfoToClient(string hostName, int hostSkin)
     {
-        if (characterRenderer != null && skinMaterials.Length > 0)
-        {
-            index = Mathf.Clamp(index, 0, skinMaterials.Length - 1);
-            characterRenderer.material = skinMaterials[index];
-        }
+        _receivedHostName = hostName;
+        _receivedHostSkin = hostSkin;
+
+        Debug.Log(hostName);
+
+        boardManager.ReceiveOpponentData(_receivedHostName, SkinIndex);
     }
 }
