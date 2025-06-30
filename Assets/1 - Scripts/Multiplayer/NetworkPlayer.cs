@@ -27,7 +27,14 @@ public class NetworkPlayer : NetworkBehaviour
 
             RPC_SendPlayerInfoToHost(name, skin);
         }
+
+        if (Object.HasStateAuthority)
+        {
+            PlayerName = PlayerPrefs.GetString("PlayerName", "Host");
+            SkinIndex = PlayerPrefs.GetInt("PlayerSkin", 0);
+        }
     }
+
 
     [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
     private void RPC_SendPlayerInfoToHost(string playerName, int skinIndex)

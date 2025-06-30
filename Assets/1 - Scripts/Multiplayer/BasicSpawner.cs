@@ -21,6 +21,29 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
             playerObj.GetComponent<NetworkPlayer>().spawner = this;
 
             _spawnedPlayers[player] = playerObj;
+
+            TrySetupPlayers(runner);
+        }
+    }
+
+    private void TrySetupPlayers(NetworkRunner runner)
+    {
+        if (_spawnedPlayers.Count < 2) return;
+
+        foreach (var kvp in _spawnedPlayers)
+        {
+            PlayerRef playerRef = kvp.Key;
+            NetworkPlayer netPlayer = kvp.Value.GetComponent<NetworkPlayer>();
+
+            if (playerRef == runner.LocalPlayer)
+            {
+                Debug.Log("I am: " + netPlayer.PlayerName);
+            }
+            else
+            {
+                Debug.Log("Opponent is: " + netPlayer.PlayerName);
+                FindObjectOfType<BoardManager>().ReceiveOpponentData(netPlayer.PlayerName.ToString(), netPlayer.SkinIndex);
+            }
         }
     }
 
