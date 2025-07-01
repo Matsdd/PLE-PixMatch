@@ -22,13 +22,39 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
 
             _spawnedPlayers[player] = playerObj;
 
-            NetworkPlayer netPlayer = playerObj.GetComponent<NetworkPlayer>();
+            runner.StartCoroutine(WaitForPlayerData(playerObj));
+        }
+    }
 
-            string playerName = netPlayer.PlayerName.ToString();
-            if (string.IsNullOrEmpty(playerName))
-                playerName = "(Name not set yet)";
+    private System.Collections.IEnumerator WaitForPlayerData(NetworkObject playerObj)
+    {
+        var networkPlayer = playerObj.GetComponent<NetworkPlayer>();
+        float timeout = 5f;
+        float timer = 0f;
 
-            Debug.Log($"[Server] Spawned player for {player}: Name = {playerName}");
+        // Wait until PlayerName is not empty or timeout
+        while (string.IsNullOrEmpty(networkPlayer.PlayerName.ToString()) && timer < timeout)
+        {
+            yield return new WaitForSeconds(0.1f);
+            timer += 0.1f;
+        }
+
+        Debug.Log($"[Server] Player joined: Name={networkPlayer.PlayerName}, Skin={networkPlayer.SkinIndex}");
+
+        LogAllPlayers(playerObj.Runner);
+    }
+
+    private void LogAllPlayers(NetworkRunner runner)
+    {
+        Debug.Log("[Server] Logging all connected players:");
+        foreach (var playerRef in runner.ActivePlayers)
+        {
+            NetworkObject obj = runner.GetPlayerObject(playerRef);
+            if (obj != null)
+            {
+                var np = obj.GetComponent<NetworkPlayer>();
+                Debug.Log($"Player {playerRef}: Name={np.PlayerName}, Skin={np.SkinIndex}");
+            }
         }
     }
 
