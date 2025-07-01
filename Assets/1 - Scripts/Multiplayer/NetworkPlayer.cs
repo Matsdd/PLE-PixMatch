@@ -11,14 +11,13 @@ public class NetworkPlayer : NetworkBehaviour
     {
         if (HasInputAuthority)
         {
-            StartCoroutine(SetupLocalPlayerData());
+            StartCoroutine(SetPlayerDataNextFrame());
         }
     }
 
-    private IEnumerator SetupLocalPlayerData()
+    private IEnumerator SetPlayerDataNextFrame()
     {
-        // Small delay to ensure PlayerPrefs are loaded and Fusion state is ready
-        yield return new WaitForSeconds(0.1f);
+        yield return null; // Wait one frame
 
         string localName = PlayerPrefs.GetString("PlayerNameKey", "Player");
         int localSkin = PlayerPrefs.GetInt("PlayerSkinKey", 0);
