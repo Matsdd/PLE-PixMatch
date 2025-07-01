@@ -18,13 +18,20 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
         if (runner.IsServer)
         {
             Vector3 spawnPos = new Vector3(player.RawEncoded % 5, 0, 0);
-            NetworkObject playerObj = runner.Spawn(playerPrefab, spawnPos, Quaternion.identity, player); // ownership = player
+            NetworkObject playerObj = runner.Spawn(playerPrefab, spawnPos, Quaternion.identity, player);
 
             _spawnedPlayers[player] = playerObj;
 
-            Debug.Log($"[Server] Spawned player for {player}");
+            NetworkPlayer netPlayer = playerObj.GetComponent<NetworkPlayer>();
+
+            string playerName = netPlayer.PlayerName.ToString();
+            if (string.IsNullOrEmpty(playerName))
+                playerName = "(Name not set yet)";
+
+            Debug.Log($"[Server] Spawned player for {player}: Name = {playerName}");
         }
     }
+
     
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player) { }
     public void OnInput(NetworkRunner runner, NetworkInput input) { }
