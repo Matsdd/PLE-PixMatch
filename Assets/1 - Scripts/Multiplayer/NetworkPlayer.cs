@@ -13,7 +13,7 @@ public class NetworkPlayer : NetworkBehaviour
         {
             RPC_SetPlayerData(
                 PlayerPrefs.GetString("PlayerName", "Player"),
-                PlayerPrefs.GetInt("SkinIndex", 0)
+                PlayerPrefs.GetInt("currentSkinIndex", 0)
             );
         }
     }
