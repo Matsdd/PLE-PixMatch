@@ -18,32 +18,13 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
         if (runner.IsServer)
         {
             Vector3 spawnPos = new Vector3(player.RawEncoded % 5, 0, 0);
-            NetworkObject playerObj = runner.Spawn(playerPrefab, spawnPos, Quaternion.identity, player);
+            NetworkObject playerObj = runner.Spawn(playerPrefab, spawnPos, Quaternion.identity, player); // ownership = player
 
             _spawnedPlayers[player] = playerObj;
 
-            // 🔑 Add a coroutine to wait for the network sync
-            runner.StartCoroutine(LogPlayerDataWhenReady(playerObj));
+            Debug.Log($"[Server] Spawned player for {player}");
         }
     }
-
-    private System.Collections.IEnumerator LogPlayerDataWhenReady(NetworkObject playerObj)
-    {
-        NetworkPlayer networkPlayer = playerObj.GetComponent<NetworkPlayer>();
-
-        float timeout = 5f;
-        float timer = 0f;
-
-        while (string.IsNullOrEmpty(networkPlayer.PlayerName.ToString()) && timer < timeout)
-        {
-            yield return new WaitForSeconds(0.1f);
-            timer += 0.1f;
-        }
-
-        Debug.Log($"[Server] New player joined: Name = {networkPlayer.PlayerName} | Skin = {networkPlayer.SkinIndex}");
-    }
-
-
     
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player) { }
     public void OnInput(NetworkRunner runner, NetworkInput input) { }
