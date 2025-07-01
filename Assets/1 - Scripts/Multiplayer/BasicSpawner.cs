@@ -12,15 +12,6 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
     private Dictionary<PlayerRef, NetworkObject> _spawnedPlayers = new();
 
     private NetworkRunner _runner;
-
-    private void Update()
-    {
-        if (_spawnedPlayers.Count >= 2)
-        {
-            TrySetupPlayers(_runner);
-        }
-    }
-
     
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
     {
@@ -31,53 +22,25 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
 
             _spawnedPlayers[player] = playerObj;
 
-            TrySetupPlayers(runner);
+            // 🔑 Add a coroutine to wait for the network sync
+            runner.StartCoroutine(LogPlayerDataWhenReady(playerObj));
         }
     }
 
-    private void TrySetupPlayers(NetworkRunner runner)
+    private System.Collections.IEnumerator LogPlayerDataWhenReady(NetworkObject playerObj)
     {
-        if (_spawnedPlayers.Count < 2) return;
+        NetworkPlayer networkPlayer = playerObj.GetComponent<NetworkPlayer>();
 
-        NetworkPlayer localPlayer = null;
-        NetworkPlayer opponentPlayer = null;
-
-        foreach (var kvp in _spawnedPlayers)
+        // Wait until the data is synced
+        while (string.IsNullOrEmpty(networkPlayer.PlayerName.ToString()))
         {
-            PlayerRef playerRef = kvp.Key;
-            NetworkPlayer netPlayer = kvp.Value.GetComponent<NetworkPlayer>();
-
-            // 🚩 If names aren't set yet, wait for next call
-            if (string.IsNullOrEmpty(netPlayer.PlayerName.ToString()))
-            {
-                Debug.Log($"Player {playerRef} has no name yet, waiting...");
-                return;
-            }
-
-            if (playerRef == runner.LocalPlayer)
-            {
-                localPlayer = netPlayer;
-                Debug.Log("I am: " + netPlayer.PlayerName.ToString());
-            }
-            else
-            {
-                opponentPlayer = netPlayer;
-                Debug.Log("Opponent is: " + netPlayer.PlayerName.ToString());
-            }
+            yield return null;
         }
 
-        if (localPlayer != null && opponentPlayer != null)
-        {
-            BoardManager board = FindObjectOfType<BoardManager>();
-            if (board != null)
-            {
-                Debug.Log("Sending opponent data to BoardManager: " + opponentPlayer.PlayerName.ToString());
-                board.SetOpponent(opponentPlayer.PlayerName.ToString(), opponentPlayer.SkinIndex);
-            }
-        }
+        Debug.Log($"[Server] New player joined: Name = {networkPlayer.PlayerName}, Skin = {networkPlayer.SkinIndex}");
     }
 
-
+    
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player) { }
     public void OnInput(NetworkRunner runner, NetworkInput input) { }
     public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input) { }
