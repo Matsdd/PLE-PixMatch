@@ -91,23 +91,25 @@ public class BoardManager : MonoBehaviour
         }
     }
 
-    public void SetLocalPlayerInfo(string name, int skinIndex)
+    public void ApplyPlayerInfo(bool isLocal, string name, int skinIndex)
     {
-        _localName = name;
-        _localSkinIndex = skinIndex;
+        if (isLocal)
+        {
+            _localName = name;
+            _localSkinIndex = skinIndex;
 
-        Debug.Log($"Set local player: {_localName} skin: {_localSkinIndex}");
-        ApplyMaterial(playerCharacter, _localSkinIndex);
-        UpdateModeText();
-    }
+            Debug.Log($"Set local player: {_localName} skin: {_localSkinIndex}");
+            ApplyMaterial(playerCharacter, _localSkinIndex);
+        }
+        else
+        {
+            _opponentName = name;
+            _opponentSkinIndex = skinIndex;
 
-    public void SetRemotePlayerInfo(string name, int skinIndex)
-    {
-        _opponentName = name;
-        _opponentSkinIndex = skinIndex;
+            Debug.Log($"Set opponent player: {_opponentName} skin: {_opponentSkinIndex}");
+            ApplyMaterial(opponentCharacter, _opponentSkinIndex);
+        }
 
-        Debug.Log($"Set opponent player: {_opponentName} skin: {_opponentSkinIndex}");
-        ApplyMaterial(opponentCharacter, _opponentSkinIndex);
         UpdateModeText();
     }
 
@@ -118,13 +120,6 @@ public class BoardManager : MonoBehaviour
             ModeText.text = $"{_localName} vs {_opponentName}";
         }
     }
-    
-    public void SetOpponent(string opponentName, int skinIndex)
-    {
-        Debug.Log($"Opponent set: {opponentName}, Skin: {skinIndex}");
-        // Do something with this info, like update UI
-    }
-
     
         void GeneratePuzzle()
     {

@@ -49,6 +49,9 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
     private void LogAllPlayers()
     {
         Debug.Log("[Server] Logging all connected players:");
+
+        BoardManager board = FindFirstObjectByType<BoardManager>();
+
         foreach (var kvp in _spawnedPlayers)
         {
             PlayerRef playerRef = kvp.Key;
@@ -57,8 +60,12 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
             var np = obj.GetComponent<NetworkPlayer>();
             string authorityType = obj.HasStateAuthority ? "Host (StateAuthority)" : "Client (InputAuthority)";
             Debug.Log($"[{authorityType}] Player {playerRef}: Name={np.PlayerName}, Skin={np.SkinIndex}");
+
+            bool isLocal = obj.HasStateAuthority; // Host sets local, client sets remote
+            board.ApplyPlayerInfo(isLocal, np.PlayerName, np.SkinIndex);
         }
     }
+
 
 
     
