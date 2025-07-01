@@ -4,27 +4,24 @@ using System.Collections;
 
 public class NetworkPlayer : NetworkBehaviour
 {
-    [Networked] public NetworkString<_32> PlayerName { get; set; }
+    [Networked] public string PlayerName { get; set; }
     [Networked] public int SkinIndex { get; set; }
 
     public override void Spawned()
     {
         if (HasInputAuthority)
         {
-            StartCoroutine(SetPlayerDataNextFrame());
+            RPC_SetPlayerData(
+                PlayerPrefs.GetString("PlayerName", "Player"),
+                PlayerPrefs.GetInt("SkinIndex", 0)
+            );
         }
     }
 
-    private IEnumerator SetPlayerDataNextFrame()
+    [Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.StateAuthority)]
+    private void RPC_SetPlayerData(string name, int skinIndex)
     {
-        yield return null; // Wait one frame
-
-        string localName = PlayerPrefs.GetString("PlayerNameKey", "Player");
-        int localSkin = PlayerPrefs.GetInt("PlayerSkinKey", 0);
-
-        PlayerName = localName;
-        SkinIndex = localSkin;
-
-        Debug.Log($"[Local Player] Set own PlayerName={localName}, SkinIndex={localSkin}");
+        PlayerName = name;
+        SkinIndex = skinIndex;
     }
 }
