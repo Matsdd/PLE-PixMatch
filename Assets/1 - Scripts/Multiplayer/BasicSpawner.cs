@@ -43,23 +43,23 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
 
         Debug.Log($"[{authorityType}] Player joined: Name={networkPlayer.PlayerName}, Skin={networkPlayer.SkinIndex}");
 
-        LogAllPlayers(playerObj.Runner);
+        LogAllPlayers();
     }
 
-    private void LogAllPlayers(NetworkRunner runner)
+    private void LogAllPlayers()
     {
         Debug.Log("[Server] Logging all connected players:");
-        foreach (var playerRef in runner.ActivePlayers)
+        foreach (var kvp in _spawnedPlayers)
         {
-            NetworkObject obj = runner.GetPlayerObject(playerRef);
-            if (obj != null)
-            {
-                var np = obj.GetComponent<NetworkPlayer>();
-                string authorityType = obj.HasStateAuthority ? "Host (StateAuthority)" : "Client (InputAuthority)";
-                Debug.Log($"[{authorityType}] Player {playerRef}: Name={np.PlayerName}, Skin={np.SkinIndex}");
-            }
+            PlayerRef playerRef = kvp.Key;
+            NetworkObject obj = kvp.Value;
+
+            var np = obj.GetComponent<NetworkPlayer>();
+            string authorityType = obj.HasStateAuthority ? "Host (StateAuthority)" : "Client (InputAuthority)";
+            Debug.Log($"[{authorityType}] Player {playerRef}: Name={np.PlayerName}, Skin={np.SkinIndex}");
         }
     }
+
 
     
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player) { }
