@@ -61,7 +61,7 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
             string authorityType = obj.HasStateAuthority ? "Host (StateAuthority)" : "Client (InputAuthority)";
             Debug.Log($"[{authorityType}] Player {playerRef}: Name={np.PlayerName}, Skin={np.SkinIndex}");
 
-            bool isLocal = obj.HasStateAuthority; // Host sets local, client sets remote
+            bool isLocal = playerRef == new PlayerRef();
             board.ApplyPlayerInfo(isLocal, np.PlayerName, np.SkinIndex);
         }
     }
