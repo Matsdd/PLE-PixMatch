@@ -39,7 +39,9 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
             timer += 0.1f;
         }
 
-        Debug.Log($"[Server] Player joined: Name={networkPlayer.PlayerName}, Skin={networkPlayer.SkinIndex}");
+        string authorityType = playerObj.HasStateAuthority ? "Host (StateAuthority)" : "Client (InputAuthority)";
+
+        Debug.Log($"[{authorityType}] Player joined: Name={networkPlayer.PlayerName}, Skin={networkPlayer.SkinIndex}");
 
         LogAllPlayers(playerObj.Runner);
     }
@@ -53,7 +55,8 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
             if (obj != null)
             {
                 var np = obj.GetComponent<NetworkPlayer>();
-                Debug.Log($"Player {playerRef}: Name={np.PlayerName}, Skin={np.SkinIndex}");
+                string authorityType = obj.HasStateAuthority ? "Host (StateAuthority)" : "Client (InputAuthority)";
+                Debug.Log($"[{authorityType}] Player {playerRef}: Name={np.PlayerName}, Skin={np.SkinIndex}");
             }
         }
     }
