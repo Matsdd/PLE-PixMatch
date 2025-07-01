@@ -10,8 +10,8 @@ public class ProfileManager : MonoBehaviour
     public Button nextSkinButton;
 
     [Header("Skin Settings")]
-    public SkinnedMeshRenderer playerRenderer; // Assign your character's renderer
-    public Material[] skinMaterials;           // Assign your 8 materials here
+    public SkinnedMeshRenderer playerRenderer;
+    public Material[] skinMaterials;
 
     private int currentSkinIndex = 0;
 
