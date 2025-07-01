@@ -10,9 +10,9 @@ public class NetworkPlayer : NetworkBehaviour
     {
         if (HasInputAuthority)
         {
-            string localName = PlayerPrefs.GetString("PlayerName", "Player");
-            PlayerName = localName; // ✅ Implicit conversion works
-            SkinIndex = PlayerPrefs.GetInt("SkinIndex", 0);
+            string localName = PlayerPrefs.GetString("PlayerNameKey", "Player");
+            PlayerName = localName;
+            SkinIndex = PlayerPrefs.GetInt("PlayerSkinKey", 0);
 
             Debug.Log($"Spawned NetworkPlayer with name: {PlayerName} skin: {SkinIndex}");
         }
