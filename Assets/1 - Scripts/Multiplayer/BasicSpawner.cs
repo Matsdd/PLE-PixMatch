@@ -31,14 +31,18 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
     {
         NetworkPlayer networkPlayer = playerObj.GetComponent<NetworkPlayer>();
 
-        // Wait until the data is synced
-        while (string.IsNullOrEmpty(networkPlayer.PlayerName.ToString()))
+        float timeout = 5f;
+        float timer = 0f;
+
+        while (string.IsNullOrEmpty(networkPlayer.PlayerName.ToString()) && timer < timeout)
         {
-            yield return null;
+            yield return new WaitForSeconds(0.1f);
+            timer += 0.1f;
         }
 
-        Debug.Log($"[Server] New player joined: Name = {networkPlayer.PlayerName}, Skin = {networkPlayer.SkinIndex}");
+        Debug.Log($"[Server] New player joined: Name = {networkPlayer.PlayerName} | Skin = {networkPlayer.SkinIndex}");
     }
+
 
     
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player) { }
