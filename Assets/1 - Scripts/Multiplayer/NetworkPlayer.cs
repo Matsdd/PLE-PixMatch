@@ -5,8 +5,7 @@ public class NetworkPlayer : NetworkBehaviour
 {
     [Networked] public NetworkString<_32> PlayerName { get; set; }
     [Networked] public int SkinIndex { get; set; }
-
-    // Called by client to send data to server
+    
     [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
     public void RPC_SetPlayerData(string name, int skin)
     {
@@ -14,12 +13,10 @@ public class NetworkPlayer : NetworkBehaviour
         SkinIndex = skin;
 
         Debug.Log($"[Server] RPC_SetPlayerData: Name={PlayerName}, Skin={SkinIndex}");
-
-        // Optionally broadcast to everyone that data changed
+        
         RPC_BroadcastPlayerData(PlayerName.ToString(), SkinIndex);
     }
-
-    // Server tells all clients about this player's data
+    
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     void RPC_BroadcastPlayerData(string name, int skin)
     {
@@ -36,8 +33,15 @@ public class NetworkPlayer : NetworkBehaviour
             string localName = PlayerPrefs.GetString("PlayerNameKey", "Player");
             int skin = PlayerPrefs.GetInt("PlayerSkinKey", 0);
 
-            Debug.Log($"[Client] Sending RPC_SetPlayerData: Name={localName}, Skin={skin}");
+            // Set local properties immediately for local view
+            PlayerName = localName;
+            SkinIndex = skin;
+
+            Debug.Log($"[Client] Local player set PlayerName and SkinIndex immediately: {localName}, {skin}");
+
+            // Then notify the server so it can update and broadcast to others
             RPC_SetPlayerData(localName, skin);
         }
     }
+
 }
