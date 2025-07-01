@@ -8,21 +8,45 @@ using TMPro;
 
 public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
 {
-    public NetworkObject playerPrefab;
-    private Dictionary<PlayerRef, NetworkObject> _spawnedPlayers = new();
+    public NetworkObject modelPlayer1;
+    public NetworkObject modelPlayer2;
 
+    private Dictionary<PlayerRef, NetworkObject> _spawnedPlayers = new();
+    
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
     {
-        if (runner.IsServer)
+        int playerId = player.RawEncoded;
+        if (!runner.IsServer) return;
+
+        Debug.Log($"Player {playerId} joined");
+        
+        NetworkObject assignedModel = null;
+
+        if (playerId == 0)
         {
-            Vector3 spawnPos = new Vector3(player.RawEncoded % 5, 0, 0);
-            NetworkObject playerObj = runner.Spawn(playerPrefab, spawnPos, Quaternion.identity, player);
+            assignedModel = modelPlayer1;
+        }
+        else if (playerId == 1)
+        {
+            assignedModel = modelPlayer2;
+        }
+        else
+        {
+            Debug.LogWarning("No model assigned for this player");
+            return;
+        }
 
-            playerObj.GetComponent<NetworkPlayer>().spawner = this;
+        // Assign ownership of the existing model to this player
+        runner.SetPlayerObject(player, assignedModel);
 
-            _spawnedPlayers[player] = playerObj;
+        // Optionally update name or other stuff on the model
+        var networkPlayer = assignedModel.GetComponent<NetworkPlayer>();
+        if (networkPlayer != null)
+        {
+            networkPlayer.SetPlayerName($"Player {player.RawEncoded}");
         }
     }
+
 
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player) { }
     public void OnInput(NetworkRunner runner, NetworkInput input) { }
